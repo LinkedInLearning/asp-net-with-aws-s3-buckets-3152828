@@ -1,5 +1,6 @@
 ﻿using Amazon;
 using Amazon.S3;
+using Amazon.S3.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -15,27 +16,46 @@ namespace AWS.Web.Controllers
     public class AWSController : ControllerBase
     {
         private readonly IConfiguration _config;
+        private readonly IAmazonS3 _client;
         public AWSController(IConfiguration config)
         {
             _config = config;
-        }
 
-        [HttpGet]
-        public async Task<IActionResult> TestAWSClient()
-        {
             var awsAccess = _config.GetValue<string>("AWSSDK:AccessKey");
             var awsSecret = _config.GetValue<string>("AWSSDK:SecretKey");
 
-            var client = new AmazonS3Client(awsAccess, awsSecret,RegionEndpoint.EUCentral1);
+            _client = new AmazonS3Client(awsAccess, awsSecret, RegionEndpoint.EUCentral1);
+        }
 
+        [HttpGet("list-buckets")]
+        public async Task<IActionResult> ListBuckets()
+        {
             try
             {
-                var result = await client.ListBucketsAsync();
-                return Ok("AmazonS3Client works fine");
+                var result = await _client.ListBucketsAsync();
+                return Ok(result);
             }
             catch (Exception)
             {
-                return BadRequest("AmazonS3Client does NOT work");
+                return BadRequest("Buckets could not be listed");
+            }
+        }
+
+        [HttpPost("create-bucket/{name}")]
+        public async Task<IActionResult> CreateBucket(string name)
+        {
+         
+
+            try
+            {
+                PutBucketRequest request = new PutBucketRequest() { BucketName = name };
+                await _client.PutBucketAsync(request);
+
+                return Ok($"Bucket: {name} WAS created");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Bucket: {name} WAS NOT created");
             }
         }
     }
