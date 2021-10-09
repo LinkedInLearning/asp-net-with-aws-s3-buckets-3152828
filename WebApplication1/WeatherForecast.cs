@@ -1,6 +1,6 @@
 using System;
 
-namespace AWS.Web
+namespace WebApplication1
 {
     public class WeatherForecast
     {
