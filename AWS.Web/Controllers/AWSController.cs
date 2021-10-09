@@ -44,8 +44,6 @@ namespace AWS.Web.Controllers
         [HttpPost("create-bucket/{name}")]
         public async Task<IActionResult> CreateBucket(string name)
         {
-         
-
             try
             {
                 PutBucketRequest request = new PutBucketRequest() { BucketName = name };
@@ -56,6 +54,30 @@ namespace AWS.Web.Controllers
             catch (Exception)
             {
                 return BadRequest($"Bucket: {name} WAS NOT created");
+            }
+        }
+
+        [HttpPost("enable-versioning/{bucketName}")]
+        public async Task<IActionResult> EnableVersioning(string bucketName)
+        {
+            try
+            {
+                PutBucketVersioningRequest request = new PutBucketVersioningRequest
+                {
+                    BucketName = bucketName,
+                    VersioningConfig = new S3BucketVersioningConfig
+                    {
+                        Status = VersionStatus.Enabled
+                    }
+                };
+
+                await _client.PutBucketVersioningAsync(request);
+
+                return Ok($"Bucket {bucketName} versioning ENABLED!");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Bucket {bucketName} versioning NOT ENABLED!");
             }
         }
     }
