@@ -143,6 +143,50 @@ namespace AWS.Web.Controllers
             }
         }
 
+        [HttpDelete("delete-bucket-object/{bucketName}/{objectName}")]
+        public async Task<IActionResult> DeleteBucketObject(string bucketName, string objectName)
+        {
+            try
+            {
+                DeleteObjectRequest request = new DeleteObjectRequest() 
+                { 
+                    BucketName = bucketName,
+                    Key = objectName
+                };
+                await _client.DeleteObjectAsync(request);
+
+                return Ok($"{objectName} in {bucketName} bucket was deleted");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"{objectName} in {bucketName} bucket WAS NOT deleted");
+            }
+        }
+
+        [HttpDelete("cleanup-bucket/{bucketName}")]
+        public async Task<IActionResult> CleanUpBucket(string bucketName)
+        {
+            try
+            {
+                DeleteObjectsRequest request = new DeleteObjectsRequest()
+                {
+                    BucketName = bucketName,
+                    Objects = new List<KeyVersion>
+                    {
+                        new KeyVersion(){Key = "old/ThankYouOld.txt"},
+                        new KeyVersion(){Key = "ThankYouNew.txt"}
+                    }
+                };
+                await _client.DeleteObjectsAsync(request);
+
+                return Ok($"{bucketName} bucket was cleaned up");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"{bucketName} bucket WAS NOT cleaned up");
+            }
+        }
+
         [HttpPost("enable-versioning/{bucketName}")]
         public async Task<IActionResult> EnableVersioning(string bucketName)
         {
