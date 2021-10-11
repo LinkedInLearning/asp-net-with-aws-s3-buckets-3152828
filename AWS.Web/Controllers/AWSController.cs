@@ -78,6 +78,22 @@ namespace AWS.Web.Controllers
             }
         }
 
+        [HttpDelete("delete-bucket/{bucketName}")]
+        public async Task<IActionResult> DeleteBucket(string bucketName)
+        {
+            try
+            {
+                DeleteBucketRequest request = new DeleteBucketRequest() { BucketName = bucketName };
+                await _client.DeleteBucketAsync(request);
+
+                return Ok($"{bucketName} bucket was deleted");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"{bucketName} bucket WAS NOT deleted");
+            }
+        }
+
         [HttpPost("enable-versioning/{bucketName}")]
         public async Task<IActionResult> EnableVersioning(string bucketName)
         {
