@@ -220,5 +220,28 @@ namespace AWS.Web.Controllers
                 return BadRequest($"Object/File WAS NOT copied");
             }
         }
+
+        [HttpGet("generate-download-link/{bucketName}/{keyName}")]
+        public IActionResult GenerateDownloadLink(string bucketName, string keyName)
+        {
+            try
+            {
+                GetPreSignedUrlRequest request = new GetPreSignedUrlRequest()
+                {
+                    BucketName = bucketName,
+                    Key = keyName,
+                    Expires = DateTime.Now.AddHours(5),
+                    Protocol = Protocol.HTTP
+                };
+
+                string downloadLink = _client.GetPreSignedURL(request);
+
+                return Ok($"Download link - {downloadLink}");
+            }
+            catch (Exception)
+            {
+                return BadRequest("Download link WAS NOT generated");
+            }
+        }
     }
 }
