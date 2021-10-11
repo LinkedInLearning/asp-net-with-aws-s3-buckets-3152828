@@ -57,6 +57,27 @@ namespace AWS.Web.Controllers
             }
         }
 
+        [HttpPost("create-folder/{bucketName}/{folderName}")]
+        public async Task<IActionResult> CreateFolder(string bucketName, string folderName)
+        {
+            try
+            {
+                PutObjectRequest request = new PutObjectRequest()
+                {
+                    BucketName = bucketName,
+                    Key = folderName.Replace("%2F","/")
+                };
+
+                await _client.PutObjectAsync(request);
+
+                return Ok($"{folderName} folder was created inside {bucketName}");
+            }
+            catch (Exception)
+            {
+                return BadRequest("The folder COULD NOT be created");
+            }
+        }
+
         [HttpPost("enable-versioning/{bucketName}")]
         public async Task<IActionResult> EnableVersioning(string bucketName)
         {
