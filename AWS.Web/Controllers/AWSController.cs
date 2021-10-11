@@ -102,7 +102,7 @@ namespace AWS.Web.Controllers
             }
             catch (Exception)
             {
-                return BadRequest($"Objects could not be listed");
+                return BadRequest($"File WAS NOT created/uploaded");
             }
         }
 
@@ -164,6 +164,37 @@ namespace AWS.Web.Controllers
             catch (Exception)
             {
                 return BadRequest($"Bucket {bucketName} versioning NOT ENABLED!");
+            }
+        }
+
+        [HttpPut("add-metadata/{bucketName}/{fileName}")]
+        public async Task<IActionResult> AddMetadata(string bucketName, string fileName)
+        {
+            try
+            {
+                Tagging newTags = new Tagging()
+                {
+                    TagSet = new List<Tag>
+                    {
+                        new Tag {Key = "Key1", Value = "FirstTag"},
+                        new Tag {Key = "Key2",Value = "SecondTag"}
+                    }
+                };
+
+                PutObjectTaggingRequest request = new PutObjectTaggingRequest()
+                {
+                    BucketName = bucketName,
+                    Key = fileName,
+                    Tagging = newTags
+                };
+
+                await _client.PutObjectTaggingAsync(request);
+
+                return Ok($"Tags added!");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Tags COULD NOT be added");
             }
         }
     }
