@@ -197,5 +197,28 @@ namespace AWS.Web.Controllers
                 return BadRequest($"Tags COULD NOT be added");
             }
         }
+
+        [HttpPut("copy-file/{sourceBucket}/{sourceKey}/{destinationBucket}/{destinationKey}")]
+        public async Task<IActionResult> CopyFile(string sourceBucket, string sourceKey, string destinationBucket, string destinationKey)
+        {
+            try
+            {
+                CopyObjectRequest request = new CopyObjectRequest()
+                {
+                    SourceBucket = sourceBucket,
+                    SourceKey = sourceKey,
+                    DestinationBucket = destinationBucket,
+                    DestinationKey = destinationKey
+                };
+
+                await _client.CopyObjectAsync(request);
+
+                return Ok($"Object/File copied");
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Object/File WAS NOT copied");
+            }
+        }
     }
 }
