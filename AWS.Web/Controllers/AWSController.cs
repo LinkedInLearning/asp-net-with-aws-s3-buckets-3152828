@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -54,6 +55,54 @@ namespace AWS.Web.Controllers
             catch (Exception)
             {
                 return BadRequest($"Bucket: {name} WAS NOT created");
+            }
+        }
+
+        [HttpPost("create-object/{bucketName}/{objectName}")]
+        public async Task<IActionResult> CreateObject(string bucketName, string objectName)
+        {
+            try
+            {
+                FileInfo file = new FileInfo(@"C:\AWSFiles\ThankYou.txt");
+
+                PutObjectRequest request = new PutObjectRequest()
+                {
+                    InputStream = file.OpenRead(),
+                    BucketName = bucketName,
+                    Key = "ThankYou.txt"
+                };
+                await _client.PutObjectAsync(request);
+
+                ListObjectsRequest objectsRequest = new ListObjectsRequest()
+                {
+                    BucketName = bucketName
+                };
+                ListObjectsResponse response = await _client.ListObjectsAsync(objectsRequest);
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return BadRequest($"File WAS NOT created/uploaded");
+            }
+        }
+
+        [HttpGet("list-objects/{bucketName}")]
+        public async Task<IActionResult> ListObjects(string bucketName)
+        {
+            try
+            {
+                ListObjectsRequest objectsRequest = new ListObjectsRequest()
+                {
+                    BucketName = bucketName
+                };
+                ListObjectsResponse response = await _client.ListObjectsAsync(objectsRequest);
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return BadRequest($"Objects could not be listed");
             }
         }
 
