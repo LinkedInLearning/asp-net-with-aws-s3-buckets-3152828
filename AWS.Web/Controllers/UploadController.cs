@@ -35,74 +35,70 @@ namespace AWS.Web.Controllers
             var fileStream = CreateDataStream();
             var fileKey = "multipart_upload_file.mp4";
 
+            //Initiate multipart upload
+            InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest()
+            {
+                BucketName = bucketName,
+                Key = fileKey
+            };
+            InitiateMultipartUploadResponse initiateResponse = await _client.InitiateMultipartUploadAsync(initiateRequest);
+
+            var contentLength = fileStream.Length;
+            int chunkSize = 5 * (int)Math.Pow(2, 20);
+            var chunksList = new List<PartETag>();
+
             try
             {
-                //Initiate multipart upload
-                InitiateMultipartUploadRequest initiateRequest = new InitiateMultipartUploadRequest()
+                int filePosition = 0;
+                for (int i = 1; filePosition < contentLength; i++)
                 {
-                    BucketName = bucketName,
-                    Key = fileKey
-                };
-                InitiateMultipartUploadResponse initiateResponse = await _client.InitiateMultipartUploadAsync(initiateRequest);
-
-                var contentLength = fileStream.Length;
-                int chunkSize = 5*(int)Math.Pow(2, 20);
-                var chunksList = new List<PartETag>();
-
-                try
-                {
-                    int filePosition = 0;
-                    for (int i = 1; filePosition < contentLength; i++)
-                    {
-                        UploadPartRequest uploadPartRequest = new UploadPartRequest()
-                        {
-                            BucketName = bucketName,
-                            Key = fileKey,
-                            UploadId = initiateResponse.UploadId,
-                            PartNumber = i,
-                            PartSize = chunkSize,
-                            InputStream = fileStream
-                        };
-
-                        uploadPartRequest.StreamTransferProgress += new EventHandler<StreamTransferProgressArgs>(UploadPartProgressEventCallback);
-
-                        UploadPartResponse uploadPartResponse = await _client.UploadPartAsync(uploadPartRequest);
-                        chunksList.Add(new PartETag()
-                        {
-                            ETag = uploadPartResponse.ETag,
-                            PartNumber = i
-                        });
-
-                        filePosition += chunkSize;
-                    }
-
-                    //Complete multipart upload
-                    CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest()
+                    UploadPartRequest uploadPartRequest = new UploadPartRequest()
                     {
                         BucketName = bucketName,
                         Key = fileKey,
                         UploadId = initiateResponse.UploadId,
-                        PartETags = chunksList
+                        PartNumber = i,
+                        PartSize = chunkSize,
+                        InputStream = fileStream
                     };
-                    await _client.CompleteMultipartUploadAsync(completeRequest);
 
+                    uploadPartRequest.StreamTransferProgress += new EventHandler<StreamTransferProgressArgs>(UploadPartProgressEventCallback);
+
+                    UploadPartResponse uploadPartResponse = await _client.UploadPartAsync(uploadPartRequest);
+                    chunksList.Add(new PartETag()
+                    {
+                        ETag = uploadPartResponse.ETag,
+                        PartNumber = i
+                    });
+
+                    filePosition += chunkSize;
                 }
-                catch (Exception)
+
+                //Complete multipart upload
+                CompleteMultipartUploadRequest completeRequest = new CompleteMultipartUploadRequest()
                 {
+                    BucketName = bucketName,
+                    Key = fileKey,
+                    UploadId = initiateResponse.UploadId,
+                    PartETags = chunksList
+                };
+                await _client.CompleteMultipartUploadAsync(completeRequest);
 
-                    throw;
-                }
-
+                return Ok("File was uploaded");
 
             }
             catch (Exception)
             {
+                AbortMultipartUploadRequest abortRequest = new AbortMultipartUploadRequest()
+                {
+                    BucketName = bucketName,
+                    Key = fileKey,
+                    UploadId = initiateResponse.UploadId
+                };
+                await _client.AbortMultipartUploadAsync(abortRequest);
 
-                throw;
+                return BadRequest("File COULD NOT be uploaded");
             }
-
-
-            return Ok();
         }
 
         private void UploadPartProgressEventCallback(object sender, StreamTransferProgressArgs e)
