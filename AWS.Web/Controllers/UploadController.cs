@@ -1,4 +1,5 @@
 ﻿using Amazon;
+using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Http;
@@ -63,6 +64,8 @@ namespace AWS.Web.Controllers
                             InputStream = fileStream
                         };
 
+                        uploadPartRequest.StreamTransferProgress += new EventHandler<StreamTransferProgressArgs>(UploadPartProgressEventCallback);
+
                         UploadPartResponse uploadPartResponse = await _client.UploadPartAsync(uploadPartRequest);
                         chunksList.Add(new PartETag()
                         {
@@ -100,6 +103,11 @@ namespace AWS.Web.Controllers
 
 
             return Ok();
+        }
+
+        private void UploadPartProgressEventCallback(object sender, StreamTransferProgressArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"{e.TransferredBytes}/{e.TotalBytes}");
         }
 
         private FileStream CreateDataStream()
