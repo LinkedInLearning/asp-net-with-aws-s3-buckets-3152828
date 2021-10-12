@@ -44,6 +44,42 @@ namespace AWS.Web.Controllers
                 };
                 InitiateMultipartUploadResponse initiateResponse = await _client.InitiateMultipartUploadAsync(initiateRequest);
 
+                var contentLength = fileStream.Length;
+                int chunkSize = 5*(int)Math.Pow(2, 10);
+                var chunksList = new List<PartETag>();
+
+                try
+                {
+                    int filePosition = 0;
+                    for (int i = 1; i < contentLength; i++)
+                    {
+                        UploadPartRequest uploadPartRequest = new UploadPartRequest()
+                        {
+                            BucketName = bucketName,
+                            Key = fileKey,
+                            UploadId = initiateResponse.UploadId,
+                            PartNumber = i,
+                            PartSize = chunkSize,
+                            InputStream = fileStream
+                        };
+
+                        UploadPartResponse uploadPartResponse = await _client.UploadPartAsync(uploadPartRequest);
+                        chunksList.Add(new PartETag()
+                        {
+                            ETag = uploadPartResponse.ETag,
+                            PartNumber = i
+                        });
+
+                        filePosition += chunkSize;
+                    }
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+
+
             }
             catch (Exception)
             {
