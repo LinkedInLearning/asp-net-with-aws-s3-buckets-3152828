@@ -1,8 +1,10 @@
-# ASP.Net: Working with AWS S3 Bucket
-This is the repository for the LinkedIn Learning course `ASP.Net: Working with AWS S3 Bucket`. The full course is available from [LinkedIn Learning][lil-course-url].
+# ASP.NET: Working with an AWS S3 Bucket
+This is the repository for the LinkedIn Learning course ASP.NET: Working with an AWS S3 Bucket. The full course is available from [LinkedIn Learning][lil-course-url].
 
+![ASP.NET: Working with an AWS S3 Bucket][lil-thumbnail-url] 
 
-_See the readme file in the main branch for updated instructions and information._
+Setting up your own data infrastructure involves a lot of time and resources. With AWS S3 Buckets, instead of investing a lot of money in your data storage infrastructure, you can just pay for what you need. You don’t have to worry about the costs of support or development and can instead focus on creating new features for your customers using the API that Amazon uses to store and retrieve any amount of data, at any time, from anywhere on the web. It gives any developer access to the same highly scalable, reliable, fast, inexpensive data storage infrastructure that Amazon uses to run its own global network of websites. In this course, Ervis Trupja teaches you how to create a bucket, modify a bucket, and delete a bucket using C# .NET Core. He also covers tasks like how to store data in these buckets, add tags, and retrieve data. Ervis then demonstrates the important feature of multipart uploads, which is crucial for uploading large files in smaller parts.
+
 ## Instructions
 This repository has branches for each of the videos in the course. You can use the branch pop up menu in github to switch to a specific branch and take a look at the course at that stage, or you can add `/tree/BRANCH_NAME` to the URL to go to the branch you want to access.
 
@@ -21,15 +23,16 @@ To resolve this issue:
     Add changes to git using this command: git add .
 	Commit changes using this command: git commit -m "some message"
 
-## Installing
-1. To use these exercise files, you must have the following installed:
-	- [list of requirements for course]
-2. Clone this repository into your local machine using the terminal (Mac), CMD (Windows), or a GUI tool like SourceTree.
-3. [Course-specific instructions]
 
+### Instructor
 
-[0]: # (Replace these placeholder URLs with actual course URLs)
+Ervis Trupja 
+                            
+Software Developer
 
-[lil-course-url]: https://www.linkedin.com/learning/
-[lil-thumbnail-url]: http://
+                            
 
+Check out my other courses on [LinkedIn Learning](https://www.linkedin.com/learning/instructors/ervis-trupja).
+
+[lil-course-url]: https://www.linkedin.com/learning/asp-dot-net-working-with-an-aws-s3-bucket
+[lil-thumbnail-url]: https://cdn.lynda.com/course/3153828/3153828-1638315276615-16x9.jpg
